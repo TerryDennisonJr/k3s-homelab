@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gsheets-app
+  namespace: family-map
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gsheets-app
+  template:
+    metadata:
+      labels:
+        app: gsheets-app
+    spec:
+      containers:
+        - name: gsheets-app
+          image: infinitiq502004/family-map:1.1.6
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: APP_ENV
+              value: kubernetes
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/secrets/google/service_account.json
+          volumeMounts:
+            - name: google-creds
+              mountPath: /var/secrets/google
+              readOnly: true
+          securityContext:
+            privileged: true
+          restartPolicy: Always 
+      volumes:
+        - name: google-creds
+          secret:
+            secretName: google-service-account

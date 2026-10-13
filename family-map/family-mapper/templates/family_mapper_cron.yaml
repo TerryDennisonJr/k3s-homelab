@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.family_mapper_cron.name | quote}}
+  namespace: {{ .Values.family_mapper_cron.namespace | quote}}
+spec:
+  schedule: {{ .Values.family_mapper_cron.schedule | quote}} # every day at 2:00 AM MTC time
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: gsheets-app
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: {{ .Values.family_mapper_cron.name }}
+              image: {{ .Values.image.repository | quote}}
+              imagePullPolicy: {{ .Values.image.pullPolicy}}
+              env:
+                - name: APP_ENV
+                  value: {{ .Values.family_mapper_cron.env.k8sEnv | quote}}
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: {{ .Values.family_mapper_cron.env.gcpProjectID | quote}}
+              volumeMounts:
+                - name: google-service-account
+                  mountPath: /deployment/gcp_creds/
+                  readOnly: true
+              securityContext:
+                privileged: true
+          volumes:
+            - name: google-service-account
+              secret:
+                secretName: google-service-account
