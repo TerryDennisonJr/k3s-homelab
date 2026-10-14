@@ -1,0 +1,12 @@
+.git
+.env
+.env.*
+deployment/gcp_creds/
+**/*.pem
+**/*.key
+.venv/
+venv/
+**/__pycache__/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
