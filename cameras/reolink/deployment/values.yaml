@@ -1,0 +1,34 @@
+namespace: cameras
+
+nodeSelector: 
+  node: worker2
+
+envFromSecrets:
+  - frigate-credentials
+
+service:
+  type: LoadBalancer
+  port: 5000
+  labels:
+    svccontroller.k3s.cattle.io/lbpool: cameras
+
+config: |
+  mqtt:
+    host: "mqtt.example.com"
+    port: 1883
+    user: admin
+    password: "{FRIGATE_ADMIN_PASSWORD}"
+  ffmpeg:
+    input_args: preset-rtsp-generic
+  cameras:
+    # Define at least one camera
+    reolink_living_room:
+      enabled: True
+      ffmpeg:
+        inputs:
+          # - path: rtsp://viewer:{FRIGATE_RTSP_PASSWORD}@10.0.10.10:554/cam/realmonitor?channel=1&subtype=2
+          - path: rtsp://admin:{FRIGATE_RTSP_PASSWORD}@{FRIGATE_IP}:{FRIGATE_PORT}/h265Preview_01_main
+            roles:
+              - detect
+      detect:
+        enabled: False
